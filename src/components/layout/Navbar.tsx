@@ -39,8 +39,8 @@ export function Navbar({ userType, userName = 'User', onLogout }: NavbarProps) {
             <div className="p-2 bg-emerald rounded-lg">
               <Plane className="w-5 h-5 text-secondary-foreground" />
             </div>
-            <span className="font-bold text-lg hidden sm:block">Travel Loan Manager</span>
-            <span className="font-bold text-lg sm:hidden">TLM</span>
+            <span className="font-bold text-lg hidden sm:block">Crepusculum Loan Manager</span>
+            <span className="font-bold text-lg sm:hidden">CLM</span>
           </Link>
 
           {/* Desktop Navigation */}

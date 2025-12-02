@@ -54,7 +54,7 @@ export default function Login() {
             <div className="w-16 h-16 bg-navy rounded-2xl flex items-center justify-center mb-4 shadow-lg">
               <Plane className="w-8 h-8 text-emerald" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Travel Loan Manager</h1>
+            <h1 className="text-2xl font-bold text-foreground">Crepusculum Loan Manager</h1>
             <p className="text-muted-foreground mt-1">Sign in to your account</p>
           </div>
 
