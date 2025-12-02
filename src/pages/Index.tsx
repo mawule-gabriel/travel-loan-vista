@@ -26,7 +26,7 @@ export default function Index() {
               <div className="w-12 h-12 bg-navy rounded-xl flex items-center justify-center shadow-lg">
                 <Plane className="w-6 h-6 text-emerald" />
               </div>
-              <span className="text-xl font-bold text-foreground">Travel Loan Manager</span>
+              <span className="text-xl font-bold text-foreground">Crepusculum Loan Manager</span>
             </div>
             <Button
               onClick={() => navigate('/login')}
@@ -50,7 +50,7 @@ export default function Index() {
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Manage travel loans with ease. Track payments, monitor progress, and achieve your travel goals with Ghana's most trusted loan management platform.
+              Manage loans with ease. Track payments, monitor progress, and achieve your goals with Ghana's most trusted loan management platform.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -148,10 +148,10 @@ export default function Index() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Plane className="w-5 h-5 text-emerald" />
-              <span className="font-semibold text-foreground">Travel Loan Manager</span>
+              <span className="font-semibold text-foreground">Crepusculum Loan Manager</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 Travel Loan Manager. Made with ❤️ in Ghana.
+              © 2024 Crepusculum Loan Manager. Made with ❤️ in Ghana.
             </p>
           </div>
         </div>
