@@ -1,34 +1,42 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, User, Calculator } from 'lucide-react';
+import { ArrowLeft, Upload, User, Calculator, Loader2 } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
+import { useRegisterBorrower } from '@/hooks/queries/useAdmin';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { getErrorMessage } from '@/utils/errorHandler';
+import { normalizePhoneNumber } from '@/utils/formatters';
 
 export default function RegisterBorrower() {
   const navigate = useNavigate();
+  const { logout, user } = useAuth();
+  const registerBorrower = useRegisterBorrower();
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [profileFile, setProfileFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
-    name: '',
-    ghanaCard: '',
-    phone: '',
-    currentAddress: '',
-    permanentAddress: '',
+    fullName: '',
+    ghanaCardNumber: '',
+    phoneNumber: '',
+    homeAddressGhana: '',
+    destinationAddress: '',
     loanAmount: '',
-    duration: '12',
+    monthsDuration: '11',
     guarantorName: '',
     guarantorPhone: '',
-    guarantorAddress: '',
+    guarantorRelationship: '',
   });
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logout();
     toast({ title: 'Logged out successfully' });
-    navigate('/');
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setProfileFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfilePreview(reader.result as string);
@@ -44,25 +52,65 @@ export default function RegisterBorrower() {
 
   const monthlyPayment = useMemo(() => {
     const amount = parseFloat(formData.loanAmount) || 0;
-    const months = parseInt(formData.duration) || 12;
+    const months = parseInt(formData.monthsDuration) || 11;
     return amount > 0 ? Math.ceil(amount / months) : 0;
-  }, [formData.loanAmount, formData.duration]);
+  }, [formData.loanAmount, formData.monthsDuration]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: 'Borrower Registered',
-      description: `${formData.name} has been successfully registered.`,
-    });
-    navigate('/admin');
+
+    let normalizedPhone: string;
+    let normalizedGuarantorPhone: string;
+
+    try {
+      normalizedPhone = normalizePhoneNumber(formData.phoneNumber);
+      normalizedGuarantorPhone = normalizePhoneNumber(formData.guarantorPhone);
+    } catch (error) {
+      toast({
+        title: 'Invalid Phone Number',
+        description: error instanceof Error ? error.message : 'Please check phone number format',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const apiFormData = new FormData();
+    apiFormData.append('fullName', formData.fullName);
+    apiFormData.append('ghanaCardNumber', formData.ghanaCardNumber);
+    apiFormData.append('phoneNumber', normalizedPhone);
+    apiFormData.append('homeAddressGhana', formData.homeAddressGhana);
+    apiFormData.append('destinationAddress', formData.destinationAddress);
+    apiFormData.append('loanAmount', formData.loanAmount);
+    apiFormData.append('monthsDuration', formData.monthsDuration);
+    apiFormData.append('guarantorName', formData.guarantorName);
+    apiFormData.append('guarantorPhone', normalizedGuarantorPhone);
+    apiFormData.append('guarantorRelationship', formData.guarantorRelationship);
+
+    if (profileFile) {
+      apiFormData.append('profilePicture', profileFile);
+    }
+
+    try {
+      await registerBorrower.mutateAsync(apiFormData);
+      toast({
+        title: 'Borrower Registered',
+        description: `${formData.fullName} has been successfully registered.`,
+      });
+      navigate('/admin');
+    } catch (error) {
+      toast({
+        title: 'Registration Failed',
+        description: getErrorMessage(error),
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar userType="admin" userName="Admin" onLogout={handleLogout} />
+      <Navbar userType="admin" userName={user?.fullName || 'Admin'} onLogout={handleLogout} />
 
       <main className="container mx-auto px-4 py-6 lg:py-8 max-w-3xl">
-        {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button
             variant="ghost"
@@ -79,7 +127,6 @@ export default function RegisterBorrower() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Profile Photo */}
           <div className="bg-card rounded-2xl p-6 shadow-lg">
             <h2 className="text-lg font-semibold text-foreground mb-4">Profile Photo</h2>
             <div className="flex items-center gap-6">
@@ -105,7 +152,6 @@ export default function RegisterBorrower() {
             </div>
           </div>
 
-          {/* Personal Information */}
           <div className="bg-card rounded-2xl p-6 shadow-lg">
             <h2 className="text-lg font-semibold text-foreground mb-4">Personal Information</h2>
             <div className="grid md:grid-cols-2 gap-4">
@@ -113,8 +159,8 @@ export default function RegisterBorrower() {
                 <label className="block text-sm font-medium text-foreground mb-2">Full Name</label>
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="fullName"
+                  value={formData.fullName}
                   onChange={handleInputChange}
                   placeholder="Enter full name"
                   className="input-field"
@@ -125,8 +171,8 @@ export default function RegisterBorrower() {
                 <label className="block text-sm font-medium text-foreground mb-2">Ghana Card Number</label>
                 <input
                   type="text"
-                  name="ghanaCard"
-                  value={formData.ghanaCard}
+                  name="ghanaCardNumber"
+                  value={formData.ghanaCardNumber}
                   onChange={handleInputChange}
                   placeholder="GHA-XXXXXXXXX-X"
                   className="input-field"
@@ -137,32 +183,32 @@ export default function RegisterBorrower() {
                 <label className="block text-sm font-medium text-foreground mb-2">Phone Number</label>
                 <input
                   type="tel"
-                  name="phone"
-                  value={formData.phone}
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
                   onChange={handleInputChange}
-                  placeholder="+233 XX XXX XXXX"
+                  placeholder="233 XX XXX XXXX or 0XX XXX XXXX"
                   className="input-field"
                   required
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-foreground mb-2">Current Address</label>
+                <label className="block text-sm font-medium text-foreground mb-2">Home Address (Ghana)</label>
                 <textarea
-                  name="currentAddress"
-                  value={formData.currentAddress}
+                  name="homeAddressGhana"
+                  value={formData.homeAddressGhana}
                   onChange={handleInputChange}
-                  placeholder="Enter current residential address"
+                  placeholder="Enter home address in Ghana"
                   className="input-field min-h-[80px] resize-none"
                   required
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-foreground mb-2">Permanent Address</label>
+                <label className="block text-sm font-medium text-foreground mb-2">Destination Address</label>
                 <textarea
-                  name="permanentAddress"
-                  value={formData.permanentAddress}
+                  name="destinationAddress"
+                  value={formData.destinationAddress}
                   onChange={handleInputChange}
-                  placeholder="Enter permanent/hometown address"
+                  placeholder="Enter destination address"
                   className="input-field min-h-[80px] resize-none"
                   required
                 />
@@ -170,7 +216,6 @@ export default function RegisterBorrower() {
             </div>
           </div>
 
-          {/* Loan Details */}
           <div className="bg-card rounded-2xl p-6 shadow-lg">
             <h2 className="text-lg font-semibold text-foreground mb-4">Loan Details</h2>
             <div className="grid md:grid-cols-2 gap-4 mb-4">
@@ -185,26 +230,28 @@ export default function RegisterBorrower() {
                   className="input-field"
                   required
                   min="1000"
+                  max="200000"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Duration (Months)</label>
                 <select
-                  name="duration"
-                  value={formData.duration}
+                  name="monthsDuration"
+                  value={formData.monthsDuration}
                   onChange={handleInputChange}
                   className="input-field"
                   required
                 >
-                  <option value="6">6 months</option>
+                  <option value="11">11 months</option>
                   <option value="12">12 months</option>
                   <option value="18">18 months</option>
                   <option value="24">24 months</option>
+                  <option value="30">30 months</option>
+                  <option value="36">36 months</option>
                 </select>
               </div>
             </div>
 
-            {/* Monthly Payment Calculator */}
             {monthlyPayment > 0 && (
               <div className="bg-emerald/10 border border-emerald/20 rounded-xl p-4 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-emerald/20 flex items-center justify-center">
@@ -220,7 +267,6 @@ export default function RegisterBorrower() {
             )}
           </div>
 
-          {/* Guarantor Information */}
           <div className="bg-card rounded-2xl p-6 shadow-lg">
             <h2 className="text-lg font-semibold text-foreground mb-4">Guarantor Information</h2>
             <div className="grid md:grid-cols-2 gap-4">
@@ -243,41 +289,52 @@ export default function RegisterBorrower() {
                   name="guarantorPhone"
                   value={formData.guarantorPhone}
                   onChange={handleInputChange}
-                  placeholder="+233 XX XXX XXXX"
+                  placeholder="233 XX XXX XXXX or 0XX XXX XXXX"
                   className="input-field"
                   required
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-foreground mb-2">Guarantor Address</label>
-                <textarea
-                  name="guarantorAddress"
-                  value={formData.guarantorAddress}
+                <label className="block text-sm font-medium text-foreground mb-2">Relationship</label>
+                <input
+                  type="text"
+                  name="guarantorRelationship"
+                  value={formData.guarantorRelationship}
                   onChange={handleInputChange}
-                  placeholder="Enter guarantor's address"
-                  className="input-field min-h-[80px] resize-none"
+                  placeholder="e.g., Father, Sister, Friend"
+                  className="input-field"
                   required
                 />
               </div>
             </div>
           </div>
 
-          {/* Submit Button */}
           <div className="flex gap-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => navigate('/admin')}
               className="flex-1 h-14 rounded-xl"
+              disabled={registerBorrower.isPending}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               className="flex-1 h-14 bg-navy hover:bg-navy-light text-primary-foreground font-semibold rounded-xl shadow-lg"
+              disabled={registerBorrower.isPending}
             >
-              <Upload className="w-5 h-5 mr-2" />
-              Register Borrower
+              {registerBorrower.isPending ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Registering...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-5 h-5 mr-2" />
+                  Register Borrower
+                </>
+              )}
             </Button>
           </div>
         </form>

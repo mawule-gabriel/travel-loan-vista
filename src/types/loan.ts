@@ -1,33 +1,42 @@
-export type LoanStatus = 'on-track' | 'delayed' | 'completed';
+export type LoanStatus = 'On Track' | 'Delayed' | 'Completed';
 
 export interface Borrower {
-  id: string;
-  name: string;
-  phone: string;
-  ghanaCard: string;
-  profilePhoto: string;
-  currentAddress: string;
-  permanentAddress: string;
-  loanAmount: number;
-  monthlyPayment: number;
-  balance: number;
-  duration: number;
-  paidMonths: number;
-  status: LoanStatus;
-  nextDueDate: string;
-  guarantorName: string;
-  guarantorPhone: string;
-  guarantorAddress: string;
+  id: number;
+  fullName: string;
+  phoneNumber: string;
+  ghanaCardNumber: string;
+  profilePicturePath?: string;
+  homeAddressGhana: string;
+  destinationAddress: string;
   createdAt: string;
+  role: 'ADMIN' | 'BORROWER';
+  loan?: Loan;
+  guarantor?: Guarantor;
+}
+
+export interface Loan {
+  id: number;
+  amount: number;
+  monthlyPayment: number;
+  totalPaid: number;
+  balance: number;
+  startDate?: string;
+  endDate?: string;
+  monthsDuration: number;
+}
+
+export interface Guarantor {
+  id: number;
+  fullName: string;
+  phoneNumber: string;
+  relationship: string;
 }
 
 export interface Payment {
-  id: string;
-  borrowerId: string;
-  amount: number;
-  date: string;
-  month: number;
-  status: 'paid' | 'pending' | 'overdue';
+  id: number;
+  amountPaid: number;
+  paymentDate: string;
+  recordedBy: string;
 }
 
 export interface DashboardStats {
@@ -36,3 +45,4 @@ export interface DashboardStats {
   totalDisbursed: number;
   overdueToday: number;
 }
+

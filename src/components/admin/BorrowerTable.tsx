@@ -1,28 +1,28 @@
 import { useState } from 'react';
-import { Borrower } from '@/types/loan';
+import type { BorrowerSummaryResponse } from '@/types/api';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Eye, CreditCard, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface BorrowerTableProps {
-  borrowers: Borrower[];
-  onView: (borrower: Borrower) => void;
-  onRecordPayment: (borrower: Borrower) => void;
-  onDownloadPdf: (borrower: Borrower) => void;
+  borrowers: BorrowerSummaryResponse[];
+  onView: (borrower: BorrowerSummaryResponse) => void;
+  onRecordPayment: (borrower: BorrowerSummaryResponse) => void;
+  onDownloadPdf: (borrower: BorrowerSummaryResponse) => void;
 }
 
 const ITEMS_PER_PAGE = 5;
 
-export function BorrowerTable({ 
-  borrowers, 
-  onView, 
-  onRecordPayment, 
-  onDownloadPdf 
+export function BorrowerTable({
+  borrowers,
+  onView,
+  onRecordPayment,
+  onDownloadPdf
 }: BorrowerTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(borrowers.length / ITEMS_PER_PAGE);
-  
+
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedBorrowers = borrowers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
@@ -62,18 +62,18 @@ export function BorrowerTable({
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <img
-                      src={borrower.profilePhoto}
-                      alt={borrower.name}
+                      src={borrower.profilePictureUrl || '/placeholder.svg'}
+                      alt={borrower.fullName}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                     <div>
-                      <p className="font-medium text-foreground">{borrower.name}</p>
-                      <p className="text-sm text-muted-foreground">{borrower.phone}</p>
+                      <p className="font-medium text-foreground">{borrower.fullName}</p>
+                      <p className="text-sm text-muted-foreground">{borrower.phoneNumber}</p>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 text-sm text-foreground font-mono">
-                  {borrower.ghanaCard}
+                  {borrower.ghanaCardNumber}
                 </td>
                 <td className="px-6 py-4 text-sm font-semibold text-foreground">
                   GHS {borrower.loanAmount.toLocaleString()}
@@ -102,7 +102,7 @@ export function BorrowerTable({
                       size="sm"
                       onClick={() => onRecordPayment(borrower)}
                       className="text-emerald hover:text-emerald hover:bg-emerald/10"
-                      disabled={borrower.status === 'completed'}
+                      disabled={borrower.status === 'Completed'}
                     >
                       <CreditCard className="w-4 h-4" />
                     </Button>
@@ -129,18 +129,18 @@ export function BorrowerTable({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <img
-                  src={borrower.profilePhoto}
-                  alt={borrower.name}
+                  src={borrower.profilePicturePath || '/placeholder.png'}
+                  alt={borrower.fullName}
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
-                  <p className="font-semibold text-foreground">{borrower.name}</p>
-                  <p className="text-sm text-muted-foreground">{borrower.phone}</p>
+                  <p className="font-semibold text-foreground">{borrower.fullName}</p>
+                  <p className="text-sm text-muted-foreground">{borrower.phoneNumber}</p>
                 </div>
               </div>
               <StatusBadge status={borrower.status} size="sm" />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <p className="text-muted-foreground">Loan Amount</p>
@@ -167,7 +167,7 @@ export function BorrowerTable({
                 size="sm"
                 onClick={() => onRecordPayment(borrower)}
                 className="flex-1 text-emerald border-emerald/30 hover:bg-emerald/10"
-                disabled={borrower.status === 'completed'}
+                disabled={borrower.status === 'Completed'}
               >
                 <CreditCard className="w-4 h-4 mr-2" />
                 Pay

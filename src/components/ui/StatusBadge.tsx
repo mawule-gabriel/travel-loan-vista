@@ -7,8 +7,12 @@ interface StatusBadgeProps {
   className?: string;
 }
 
-const statusConfig = {
+const statusConfig: Record<string, { label: string; className: string }> = {
   'on-track': {
+    label: 'On Track',
+    className: 'status-on-track',
+  },
+  'On Track': {
     label: 'On Track',
     className: 'status-on-track',
   },
@@ -16,7 +20,15 @@ const statusConfig = {
     label: 'Delayed',
     className: 'status-delayed',
   },
+  'Delayed': {
+    label: 'Delayed',
+    className: 'status-delayed',
+  },
   'completed': {
+    label: 'Completed',
+    className: 'status-completed',
+  },
+  'Completed': {
     label: 'Completed',
     className: 'status-completed',
   },
@@ -29,8 +41,9 @@ const sizeClasses = {
 };
 
 export function StatusBadge({ status, size = 'md', className }: StatusBadgeProps) {
-  const config = statusConfig[status];
-  
+  const config = statusConfig[status] || statusConfig['on-track'];
+  const normalizedStatus = status.toLowerCase().replace(' ', '-');
+
   return (
     <span
       className={cn(
@@ -42,9 +55,9 @@ export function StatusBadge({ status, size = 'md', className }: StatusBadgeProps
     >
       <span className={cn(
         'w-1.5 h-1.5 rounded-full mr-2',
-        status === 'on-track' && 'bg-emerald',
-        status === 'delayed' && 'bg-gold',
-        status === 'completed' && 'bg-info'
+        normalizedStatus === 'on-track' && 'bg-emerald',
+        normalizedStatus === 'delayed' && 'bg-gold',
+        normalizedStatus === 'completed' && 'bg-info'
       )} />
       {config.label}
     </span>

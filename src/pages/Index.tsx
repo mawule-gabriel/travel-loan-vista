@@ -1,18 +1,41 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plane, Shield, Users, TrendingUp, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 export default function Index() {
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      if (user.role === 'ADMIN') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/borrower', { replace: true });
+      }
+    }
+  }, [isAuthenticated, isLoading, user, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
       <div className="relative overflow-hidden">
-        {/* Kente Pattern Background */}
         <div className="absolute inset-0 kente-pattern opacity-20" />
         
-        {/* Ghana Flag Stripe */}
         <div className="absolute top-0 left-0 right-0 h-1.5 flex">
           <div className="flex-1 bg-[#CE1126]" />
           <div className="flex-1 bg-[#FCD116]" />
@@ -20,7 +43,6 @@ export default function Index() {
         </div>
 
         <div className="relative container mx-auto px-4 pt-20 pb-32">
-          {/* Logo & Nav */}
           <nav className="flex items-center justify-between mb-16">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-navy rounded-xl flex items-center justify-center shadow-lg">
@@ -37,7 +59,6 @@ export default function Index() {
             </Button>
           </nav>
 
-          {/* Hero Content */}
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald/10 text-emerald text-sm font-medium mb-6">
               <Shield className="w-4 h-4" />
@@ -73,7 +94,6 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Wave Decoration */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 120" className="w-full h-20 fill-card">
             <path d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,58.7C960,64,1056,64,1152,58.7C1248,53,1344,43,1392,37.3L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z" />
@@ -81,7 +101,6 @@ export default function Index() {
         </div>
       </div>
 
-      {/* Features Section */}
       <section className="bg-card py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-foreground mb-12">
@@ -122,7 +141,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="bg-navy py-20">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-primary-foreground mb-4">
@@ -142,7 +160,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-card py-8 border-t border-border">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
