@@ -33,14 +33,21 @@ export const formatGhanaCard = (cardNumber: string): string => {
 export const normalizePhoneNumber = (phone: string): string => {
     const cleaned = phone.replace(/\D/g, '');
     
+    // Already in international format: 233XXXXXXXXX (12 digits)
     if (cleaned.startsWith('233') && cleaned.length === 12) {
         return cleaned;
     }
     
-    if (cleaned.length === 10 && /^[2-5]/.test(cleaned)) {
-        return '233' + cleaned;
+    // Local format with leading 0: 0XXXXXXXXX (10 digits)
+    // Strip the 0 and prepend 233
+    if (cleaned.length === 10 && cleaned.startsWith('0')) {
+        const withoutZero = cleaned.substring(1);
+        if (/^[2-5]/.test(withoutZero)) {
+            return '233' + withoutZero;
+        }
     }
     
+    // 9 digits starting with 2-5 (no country code, no leading 0)
     if (cleaned.length === 9 && /^[2-5]/.test(cleaned)) {
         return '233' + cleaned;
     }
