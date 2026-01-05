@@ -5,6 +5,7 @@ import type {
     RecordPaymentRequest,
     BorrowerSummaryResponse,
     PageResponse,
+    BorrowerDetailResponse,
 } from '@/types/api';
 import { getErrorMessage } from '@/utils/errorHandler';
 
@@ -64,5 +65,14 @@ export const useDownloadSchedule = (): UseMutationResult<Blob, Error, number> =>
         onError: (error) => {
             console.error('Download schedule error:', getErrorMessage(error));
         },
+    });
+};
+
+export const useBorrowerDetails = (id: number | null): UseQueryResult<BorrowerDetailResponse, Error> => {
+    return useQuery({
+        queryKey: ['borrower-details', id],
+        queryFn: () => adminService.getBorrowerDetails(id!),
+        enabled: !!id,
+        staleTime: 0,
     });
 };

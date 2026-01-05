@@ -4,6 +4,7 @@ import type {
     RecordPaymentRequest,
     BorrowerSummaryResponse,
     PageResponse,
+    BorrowerDetailResponse,
 } from '@/types/api';
 
 export const adminService = {
@@ -49,6 +50,13 @@ export const adminService = {
             {
                 responseType: 'blob',
             }
+        );
+        return response.data;
+    },
+
+    getBorrowerDetails: async (id: number): Promise<BorrowerDetailResponse> => {
+        const response = await apiClient.get<BorrowerDetailResponse>(
+            API_ENDPOINTS.admin.getBorrowerDetails(id)
         );
         return response.data;
     },

@@ -8,6 +8,7 @@ export const API_ENDPOINTS = {
         registerBorrower: '/admin/borrowers',
         recordPayment: '/admin/payments',
         getBorrowers: '/admin/borrowers',
+        getBorrowerDetails: (id: number) => `/admin/borrowers/${id}`,
         downloadSchedule: (id: number) => `/admin/borrowers/${id}/schedule`,
     },
     borrower: {

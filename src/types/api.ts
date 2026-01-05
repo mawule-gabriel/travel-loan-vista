@@ -83,6 +83,7 @@ export interface BorrowerDetailResponse {
     startDate: string | null;
     endDate: string | null;
     monthsDuration: number;
+    monthsPaid: number;
     guarantorName: string;
     guarantorPhone: string;
     guarantorRelationship: string;

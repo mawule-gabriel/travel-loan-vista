@@ -89,7 +89,7 @@ export default function BorrowerDashboard() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-4 mb-6">
-          <div 
+          <div
             className="bg-card rounded-2xl p-5 shadow-lg animate-fade-in"
             style={{ animationDelay: '200ms' }}
           >
@@ -110,7 +110,7 @@ export default function BorrowerDashboard() {
             </div>
           </div>
 
-          <div 
+          <div
             className="bg-card rounded-2xl p-5 shadow-lg animate-fade-in"
             style={{ animationDelay: '300ms' }}
           >
@@ -123,7 +123,15 @@ export default function BorrowerDashboard() {
         </div>
 
         <div className="animate-fade-in" style={{ animationDelay: '400ms' }}>
-          <PaymentTimeline payments={dashboardData.paymentHistory} />
+          <PaymentTimeline
+            payments={dashboardData.paymentHistory.map(p => ({
+              ...p,
+              note: null
+            }))}
+            startDate={dashboardData.startDate}
+            totalMonths={dashboardData.totalMonths}
+            monthlyPayment={dashboardData.monthlyPayment}
+          />
         </div>
       </main>
     </div>
