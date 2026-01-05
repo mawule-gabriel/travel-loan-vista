@@ -50,6 +50,14 @@ const App = () => (
                 }
               />
               <Route
+                path="/admin/borrowers"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/borrower"
                 element={
                   <ProtectedRoute allowedRoles={['BORROWER']}>

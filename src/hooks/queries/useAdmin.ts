@@ -23,7 +23,8 @@ export const useBorrowers = (
     return useQuery({
         queryKey: queryKeys.admin.borrowers(params),
         queryFn: () => adminService.getBorrowers(params),
-        staleTime: 30000,
+        staleTime: 0, // Always consider data stale to allow immediate refetch after mutations
+        refetchOnWindowFocus: true,
     });
 };
 
@@ -47,7 +48,9 @@ export const useRecordPayment = (): UseMutationResult<string, Error, RecordPayme
     return useMutation({
         mutationFn: adminService.recordPayment,
         onSuccess: () => {
+            // Invalidate and immediately refetch all borrower queries to show updated data
             queryClient.invalidateQueries({ queryKey: queryKeys.admin.borrowers() });
+            queryClient.refetchQueries({ queryKey: queryKeys.admin.borrowers() });
         },
         onError: (error) => {
             console.error('Record payment error:', getErrorMessage(error));

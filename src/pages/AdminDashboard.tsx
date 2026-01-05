@@ -35,6 +35,13 @@ export default function AdminDashboard() {
     sortDir: 'desc',
   });
 
+  // Update selectedBorrower when data refreshes to show latest payment information
+  const updatedSelectedBorrower = useMemo(() => {
+    if (!selectedBorrower || !data?.content) return selectedBorrower;
+    const freshBorrower = data.content.find(b => b.id === selectedBorrower.id);
+    return freshBorrower || selectedBorrower;
+  }, [selectedBorrower, data]);
+
   const downloadSchedule = useDownloadSchedule();
 
   const handleLogout = async () => {
@@ -168,14 +175,14 @@ export default function AdminDashboard() {
           <RecordPaymentDialog
             open={paymentDialogOpen}
             onOpenChange={setPaymentDialogOpen}
-            borrowerId={selectedBorrower.id}
-            borrowerName={selectedBorrower.fullName}
-            monthlyPayment={selectedBorrower.monthlyPayment}
+            borrowerId={updatedSelectedBorrower.id}
+            borrowerName={updatedSelectedBorrower.fullName}
+            monthlyPayment={updatedSelectedBorrower.monthlyPayment}
           />
           <BorrowerDetailDialog
             open={detailDialogOpen}
             onOpenChange={setDetailDialogOpen}
-            borrower={selectedBorrower}
+            borrower={updatedSelectedBorrower}
           />
         </>
       )}
