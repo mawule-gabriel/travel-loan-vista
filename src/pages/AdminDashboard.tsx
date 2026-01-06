@@ -26,6 +26,9 @@ export default function AdminDashboard() {
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
+  // Added background ref for potential parallax effect or similar interacting
+  // using a simple full-page background wrapper primarily
+
   const { data, isLoading, error } = useBorrowers({
     search: searchQuery,
     status: statusFilter === 'all' ? 'On Track,Delayed,Completed' : statusFilter,
@@ -91,10 +94,14 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen bg-background">
         <Navbar userType="admin" userName={user?.fullName || 'Admin'} onLogout={handleLogout} />
-        <main className="container mx-auto px-4 py-6">
-          <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-6 text-center">
-            <p className="text-destructive font-semibold">Error loading borrowers</p>
+        <main className="container mx-auto px-4 py-8 relative z-10">
+          <div className="glass-panel border-destructive/20 rounded-2xl p-8 text-center max-w-md mx-auto mt-20">
+            <div className="w-12 h-12 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <p className="text-destructive font-bold text-lg">Error loading borrowers</p>
             <p className="text-sm text-muted-foreground mt-2">{getErrorMessage(error)}</p>
+            <Button onClick={() => window.location.reload()} variant="outline" className="mt-6">Retry</Button>
           </div>
         </main>
       </div>
@@ -102,27 +109,36 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 relative selection:bg-indigo-500/30 overflow-x-hidden animate-fade-in">
+      {/* Sophisticated Background Layers */}
+      <div className="fixed inset-0 bg-[radial-gradient(at_top_right,rgba(99,102,241,0.08),transparent_50%),radial-gradient(at_bottom_left,rgba(20,184,166,0.05),transparent_50%)] pointer-events-none" />
+      <div className="fixed inset-0 bg-grid-pattern opacity-[0.4] pointer-events-none" />
+
       <Navbar userType="admin" userName={user?.fullName || 'Admin'} onLogout={handleLogout} />
 
-      <main className="container mx-auto px-4 py-6 lg:py-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-muted-foreground mt-1">
-              Manage your travel loan portfolio
+      <main className="container mx-auto px-6 py-10 lg:py-16 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16">
+          <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <h1 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+              Dashboard
+            </h1>
+            <p className="text-muted-foreground/80 mt-3 text-lg font-bold tracking-tight">
+              Manage your travel loan portfolio with precision
             </p>
           </div>
           <Button
             onClick={() => navigate('/admin/register')}
-            className="bg-emerald hover:bg-emerald-light text-secondary-foreground font-semibold rounded-xl shadow-lg"
+            className="rounded-[22px] px-8 py-8 h-12 text-base font-black shadow-elevated bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white border-0 hover:scale-[1.03] hover:-translate-y-1 active:scale-95 transition-all duration-500 group animate-slide-up"
+            style={{ animationDelay: '0.2s' }}
           >
-            <Plus className="w-5 h-5 mr-2" />
+            <div className="p-1.5 bg-white/20 rounded-xl mr-3 group-hover:rotate-90 transition-transform duration-500">
+              <Plus className="w-5 h-5" />
+            </div>
             New Borrower
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <StatsCard
             title="Total Borrowers"
             value={stats.totalBorrowers}
@@ -157,8 +173,9 @@ export default function AdminDashboard() {
         />
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
             <LoadingSpinner size="lg" />
+            <p className="text-muted-foreground animate-pulse">Loading dashboard data...</p>
           </div>
         ) : (
           <BorrowerTable

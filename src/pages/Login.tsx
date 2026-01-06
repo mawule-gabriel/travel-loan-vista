@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plane, Eye, EyeOff, Phone, Lock } from 'lucide-react';
+import { Plane, Eye, EyeOff, Phone, Lock, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { getErrorMessage } from '@/utils/errorHandler';
 import { normalizePhoneNumber } from '@/utils/formatters';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { cn } from '@/lib/utils';
 
 type UserType = 'admin' | 'borrower';
 
@@ -69,7 +70,7 @@ export default function Login() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-[#F1F3F5]">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -79,90 +80,104 @@ export default function Login() {
     return null;
   }
 
+  const inputClasses = "w-full px-5 py-3.5 rounded-xl border border-slate-200 bg-[#F8F9FB] focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400";
+  const labelClasses = "block text-sm font-bold text-slate-700 mb-2";
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <div className="fixed inset-0 kente-pattern opacity-30" />
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#F1F3F5] relative overflow-hidden selection:bg-indigo-500/10">
+      {/* Background patterns for texture */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.2] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl -mr-48 -mt-48" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -ml-48 -mb-48" />
 
       <div className="w-full max-w-md relative z-10 animate-fade-in">
-        <div className="h-2 rounded-t-2xl overflow-hidden flex">
+        {/* Ghana Flag Accent Stripe */}
+        <div className="h-2.5 rounded-t-[24px] overflow-hidden flex shadow-sm">
           <div className="flex-1 bg-[#CE1126]" />
           <div className="flex-1 bg-[#FCD116]" />
           <div className="flex-1 bg-[#006B3F]" />
         </div>
 
-        <div className="bg-card rounded-b-2xl shadow-xl p-8">
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-navy rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-              <Plane className="w-8 h-8 text-emerald" />
+        <div className="bg-white rounded-b-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-10 border border-white">
+          <div className="flex flex-col items-center mb-10">
+            <div className="w-20 h-20 bg-[#1E293B] rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-slate-900/10 relative group">
+              <div className="absolute inset-0 bg-indigo-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Plane className="w-10 h-10 text-emerald-400 animate-float relative z-10" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Crepusculum Loan Manager</h1>
-            <p className="text-muted-foreground mt-1">Sign in to your account</p>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight text-center">Crepusculum Loan Manager</h1>
+            <p className="text-slate-400 mt-2 font-bold text-base">Sign in to your account</p>
           </div>
 
-          <div className="flex bg-muted rounded-xl p-1 mb-6">
+          {/* Role Toggle */}
+          <div className="flex bg-slate-100/80 rounded-2xl p-1.5 mb-8 shadow-inner">
             <button
               type="button"
               onClick={() => setUserType('borrower')}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${userType === 'borrower'
-                  ? 'bg-card shadow-sm text-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-                }`}
+              className={cn(
+                'flex-1 py-3 rounded-xl text-sm font-black uppercase tracking-widest transition-all duration-500',
+                userType === 'borrower'
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-[1.02]'
+                  : 'text-slate-400 hover:text-slate-600'
+              )}
             >
               Borrower
             </button>
             <button
               type="button"
               onClick={() => setUserType('admin')}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${userType === 'admin'
-                  ? 'bg-card shadow-sm text-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-                }`}
+              className={cn(
+                'flex-1 py-3 rounded-xl text-sm font-black uppercase tracking-widest transition-all duration-500',
+                userType === 'admin'
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-[1.02]'
+                  : 'text-slate-400 hover:text-slate-600'
+              )}
             >
               Admin
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Phone Number
-              </label>
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-muted-foreground">
-                  <Phone className="w-4 h-4" />
-                  <span className="text-sm font-medium border-r border-border pr-2">+233</span>
+              <label className={labelClasses}>Phone Number</label>
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-3 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                  <Phone className="w-5 h-5" />
+                  <span className="text-sm font-bold border-r border-slate-200 pr-3">+233</span>
                 </div>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="24 123 4567"
-                  className="input-field pl-24"
+                  className={cn(inputClasses, "pl-28")}
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-slate-700">Password</label>
+                <button type="button" className="text-xs font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-700 transition-colors">
+                  Forgot password?
+                </button>
+              </div>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="input-field pl-12 pr-12"
+                  className={cn(inputClasses, "pl-14 pr-14")}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
@@ -170,15 +185,27 @@ export default function Login() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-navy hover:bg-navy-light text-primary-foreground font-semibold rounded-xl shadow-lg transition-all duration-200"
+              className="w-full h-14 bg-[#1E293B] hover:bg-[#2d3a4f] text-white font-black rounded-2xl shadow-xl shadow-slate-900/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-3 group overflow-hidden relative"
             >
               {isLoading ? (
-                <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                `Sign in as ${userType === 'admin' ? 'Admin' : 'Borrower'}`
+                <>
+                  <span className="relative z-10 uppercase tracking-widest text-sm">
+                    Sign in as {userType}
+                  </span>
+                  <ChevronRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 via-white/5 to-indigo-600/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                </>
               )}
             </Button>
           </form>
+
+          <footer className="mt-10 text-center">
+            <p className="text-sm font-bold text-slate-400">
+              Trusted by 10,000+ travel enthusiasts
+            </p>
+          </footer>
         </div>
       </div>
     </div>

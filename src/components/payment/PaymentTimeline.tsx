@@ -57,10 +57,6 @@ export function PaymentTimeline({
             paymentsByMonth.set(key, monthPayments);
         });
 
-        // Generate timeline for each month of the loan duration
-        // If the loan runs longer than totalMonths (e.g. late payments), we might need to extend using actual payments
-        // But let's stick to totalMonths or up to the last actual payment, whichever is later.
-
         const lastPaymentDate = sortedPayments.length > 0 ? parseISO(sortedPayments[sortedPayments.length - 1].date) : start;
         const monthsToCover = Math.max(totalMonths,
             sortedPayments.length > 0 ?
@@ -77,7 +73,7 @@ export function PaymentTimeline({
                 // Add actual payments
                 actualPayments.forEach(p => {
                     items.push({
-                        id: `payment-${p.date}-${p.amount}`, // simplistic ID
+                        id: `payment-${p.date}-${p.amount}`,
                         stepNumber: stepCounter++,
                         date: parseISO(p.date),
                         amount: p.amount,
@@ -89,10 +85,9 @@ export function PaymentTimeline({
                 });
             } else {
                 // No payment for this scheduled month
-                // Check status
                 let status: TimelineItem['status'] = 'Pending';
                 if (isBefore(startOfMonth(currentMonthDate), startOfMonth(today))) {
-                    status = 'Overdue'; // Or 'Failed'/'Missed' implies strict failure. Overdue is safer.
+                    status = 'Overdue';
                 }
 
                 items.push({
@@ -113,105 +108,87 @@ export function PaymentTimeline({
 
     return (
         <div className={cn("flex flex-col space-y-0 text-sm", className)}>
-            <h3 className="font-semibold text-lg mb-4 text-foreground">Payment Timeline</h3>
-            <div className="relative border-l-2 border-muted ml-3.5 space-y-6 pb-2">
-                {timelineData.map((item, index) => {
-                    // Group by month visually? The requirements say "Group payments visually under month headers"
-                    // But we are traversing month by month anyway.
-                    // If multiple payments are in the same month, we should show the header only once?
-                    // Actually, my loop logic generates items. I can render headers based on date change in the render loop.
+            <div className="flex items-center gap-2 mb-6">
+                <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                    <Clock className="w-4 h-4" />
+                </div>
+                <h3 className="font-bold text-lg text-foreground">Payment Timeline</h3>
+            </div>
 
+            <div className="relative border-l-2 border-slate-200 dark:border-slate-800 ml-3.5 space-y-8 pb-4">
+                {timelineData.map((item, index) => {
                     const showMonthHeader = index === 0 || !isSameMonth(item.date, timelineData[index - 1].date);
                     const isLatestCompleted = item.status === 'Completed' && (
                         index === timelineData.length - 1 || timelineData[index + 1].status !== 'Completed'
                     );
 
                     return (
-                        <div key={item.id} className="relative pl-8 pr-2">
-                            {/* Month Header */}
+                        <div key={item.id} className="relative pl-8 pr-2 group">
+                            {/* Month Label */}
                             {showMonthHeader && (
-                                <div className="absolute -left-[21px] -top-1 flex items-center mb-2">
-                                    {/* Only show year if it changes? For now just Month Year */}
-                                    {/* Actually, user said "Group payments visually under month headers" 
-                                 It might be cleaner to have the header separate from the item line 
-                                 but the item needs to align with the timeline.
-                             */}
-                                </div>
-                            )}
-
-                            {/* Month Label separate line? */}
-                            {showMonthHeader && (
-                                <div className="mb-3 mt-1 first:mt-0 font-semibold text-muted-foreground uppercase text-xs tracking-wider">
-                                    {format(item.date, 'MMMM yyyy')}
+                                <div className="mb-4 mt-2 first:mt-0 flex items-center gap-2">
+                                    <span className="font-bold text-xs uppercase tracking-wider text-muted-foreground bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                                        {format(item.date, 'MMMM yyyy')}
+                                    </span>
                                 </div>
                             )}
 
                             {/* Timeline Node */}
                             <div className={cn(
-                                "absolute -left-[9px] top-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center bg-background z-10",
-                                item.status === 'Completed' ? "border-emerald-500 bg-emerald-500 text-white" :
-                                    item.status === 'Overdue' ? "border-destructive bg-background text-destructive" :
-                                        "border-muted-foreground bg-background text-muted-foreground"
+                                "absolute -left-[9px] top-6 w-5 h-5 rounded-full border-4 transition-all duration-300 z-10",
+                                item.status === 'Completed' ? "border-emerald-500 bg-white dark:bg-slate-900" :
+                                    item.status === 'Overdue' ? "border-red-500 bg-white dark:bg-slate-900" :
+                                        "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900",
+                                isLatestCompleted && "ring-4 ring-emerald-500/20 scale-110"
                             )}>
-                                {item.status === 'Completed' ? <CheckCircle2 className="w-3 h-3" /> :
-                                    item.status === 'Overdue' ? <AlertCircle className="w-3 h-3" /> :
-                                        <Circle className="w-3 h-3" />}
+                                {item.status === 'Completed' && <div className="absolute inset-0 m-auto w-2 h-2 rounded-full bg-emerald-500" />}
                             </div>
 
-                            {/* Content */}
+                            {/* Content Card */}
                             <div className={cn(
-                                "p-3 rounded-lg border transition-all",
-                                item.status === 'Completed' ? "bg-emerald-50/50 border-emerald-100" :
-                                    item.status === 'Overdue' ? "bg-destructive/5 border-destructive/20" :
-                                        "bg-muted/30 border-transparent",
-                                isLatestCompleted && "ring-2 ring-emerald-500/20 shadow-sm"
+                                "p-4 rounded-2xl border transition-all duration-300",
+                                item.status === 'Completed' ? "bg-emerald-50/50 border-emerald-100 hover:shadow-md hover:border-emerald-200 dark:bg-emerald-900/10 dark:border-emerald-500/20" :
+                                    item.status === 'Overdue' ? "bg-red-50/50 border-red-100 hover:shadow-md hover:border-red-200 dark:bg-red-900/10 dark:border-red-500/20" :
+                                        "bg-slate-50/50 border-slate-100 hover:bg-slate-50 hover:border-slate-200 dark:bg-slate-800/30 dark:border-slate-700/50",
+                                isLatestCompleted && "shadow-lg shadow-emerald-500/10 border-emerald-200 bg-emerald-50"
                             )}>
                                 <div className="flex items-start justify-between gap-4">
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2">
                                             <span className={cn(
-                                                "text-xs font-bold px-1.5 py-0.5 rounded",
-                                                item.status === 'Completed' ? "bg-emerald-100 text-emerald-700" : "bg-muted text-muted-foreground"
+                                                "text-[10px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wide",
+                                                item.status === 'Completed' ? "bg-emerald-500 text-white" :
+                                                    item.status === 'Overdue' ? "bg-red-500 text-white" :
+                                                        "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
                                             )}>
-                                                #{item.stepNumber}
+                                                Step {item.stepNumber}
                                             </span>
-                                            <span className={cn("font-medium", item.status === 'Completed' ? "text-foreground" : "text-muted-foreground")}>
-                                                {item.status === 'Completed' ? 'Payment Received' :
-                                                    item.status === 'Overdue' ? 'Payment Missed/Due' : 'Scheduled Payment'}
+                                            <span className="text-xs text-muted-foreground font-medium">
+                                                {format(item.date, 'PPP')}
                                             </span>
                                         </div>
-                                        <div className="text-2xl font-bold tracking-tight">
-                                            {formatCurrency(item.amount || 0)}
-                                        </div>
-                                        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                                            <Clock className="w-3 h-3" />
-                                            {format(item.date, 'PPP')}
-                                            {item.type === 'Actual' && ` at ${format(item.date, 'p')}`}
+
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-xl font-bold tracking-tight text-foreground">
+                                                {formatCurrency(item.amount || 0)}
+                                            </span>
                                         </div>
 
                                         {showMetadata && item.recordedBy && (
-                                            <div className="mt-2 text-xs bg-black/5 inline-block px-1.5 py-0.5 rounded text-muted-foreground">
-                                                Recorded by: {item.recordedBy}
-                                            </div>
-                                        )}
-
-                                        {item.note && (
-                                            <div className="mt-2 text-xs italic text-muted-foreground/80 border-l-2 border-muted pl-2">
-                                                "{item.note}"
+                                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2 bg-black/5 dark:bg-white/5 w-fit px-2 py-1 rounded-md">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-primary/50" />
+                                                Rec. by {item.recordedBy}
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="text-right">
-                                        <div className={cn(
-                                            "text-xs font-medium px-2 py-1 rounded-full capitalize",
-                                            item.status === 'Completed' ? "bg-emerald-100 text-emerald-700" :
-                                                item.status === 'Overdue' ? "bg-destructive/10 text-destructive" :
-                                                    "bg-muted text-muted-foreground"
-                                        )}>
-                                            {item.status}
-                                        </div>
-                                    </div>
+                                    {item.status === 'Completed' ? (
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-1" />
+                                    ) : item.status === 'Overdue' ? (
+                                        <AlertCircle className="w-5 h-5 text-red-500 mt-1" />
+                                    ) : (
+                                        <Circle className="w-5 h-5 text-slate-300 mt-1" />
+                                    )}
                                 </div>
                             </div>
                         </div>

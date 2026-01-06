@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { FileDown, Phone, MapPin } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { BalanceCard } from '@/components/borrower/BalanceCard';
-import { PaymentTimeline } from '@/components/borrower/PaymentTimeline';
+import { PaymentTimeline } from '@/components/payment/PaymentTimeline';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useBorrowerDashboard, useDownloadMySchedule } from '@/hooks/queries/useBorrower';
