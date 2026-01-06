@@ -122,7 +122,7 @@ export default function BorrowerDashboard() {
           </div>
         </div>
 
-        <div className="animate-fade-in" style={{ animationDelay: '400ms' }}>
+        <div id="payment-timeline" className="animate-fade-in" style={{ animationDelay: '400ms' }}>
           <PaymentTimeline
             payments={dashboardData.paymentHistory.map(p => ({
               ...p,

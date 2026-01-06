@@ -21,8 +21,8 @@ export function Navbar({ userType, userName = 'User', onLogout }: NavbarProps) {
   ];
 
   const borrowerLinks = [
-    { href: '/borrower', label: 'My Dashboard' },
-    { href: '/borrower/history', label: 'Payment History' },
+    { href: '/borrower', label: 'Dashboard' },
+    { href: '#payment-timeline', label: 'Payment History' },
   ];
 
   const links = userType === 'admin' ? adminLinks : borrowerLinks;
@@ -42,20 +42,45 @@ export function Navbar({ userType, userName = 'User', onLogout }: NavbarProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={cn(
-                  'text-sm font-bold tracking-wide transition-all duration-300',
-                  location.pathname === link.href
-                    ? 'text-emerald-400'
-                    : 'text-white/70 hover:text-white'
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {links.map((link) => {
+              const isAnchor = link.href.startsWith('#');
+              return isAnchor ? (
+                <button
+                  key={link.href}
+                  onClick={() => {
+                    const element = document.getElementById(link.href.substring(1));
+                    if (element) {
+                      const offset = 80; // Height of the fixed header
+                      const bodyRect = document.body.getBoundingClientRect().top;
+                      const elementRect = element.getBoundingClientRect().top;
+                      const elementPosition = elementRect - bodyRect;
+                      const offsetPosition = elementPosition - offset;
+
+                      window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                      });
+                    }
+                  }}
+                  className="text-sm font-bold tracking-wide text-white/70 hover:text-white transition-all duration-300"
+                >
+                  {link.label}
+                </button>
+              ) : (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={cn(
+                    'text-sm font-bold tracking-wide transition-all duration-300',
+                    location.pathname === link.href
+                      ? 'text-emerald-400'
+                      : 'text-white/70 hover:text-white'
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
           {/* User Menu */}
@@ -93,21 +118,47 @@ export function Navbar({ userType, userName = 'User', onLogout }: NavbarProps) {
         {isOpen && (
           <div className="md:hidden py-6 border-t border-white/5 animate-fade-in">
             <div className="flex flex-col gap-2">
-              {links.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className={cn(
-                    'px-4 py-3 rounded-xl text-sm font-bold transition-all',
-                    location.pathname === link.href
-                      ? 'bg-emerald-500/10 text-emerald-400'
-                      : 'text-white/70 hover:bg-white/5 hover:text-white'
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {links.map((link) => {
+                const isAnchor = link.href.startsWith('#');
+                return isAnchor ? (
+                  <button
+                    key={link.href}
+                    onClick={() => {
+                      setIsOpen(false);
+                      const element = document.getElementById(link.href.substring(1));
+                      if (element) {
+                        const offset = 80;
+                        const bodyRect = document.body.getBoundingClientRect().top;
+                        const elementRect = element.getBoundingClientRect().top;
+                        const elementPosition = elementRect - bodyRect;
+                        const offsetPosition = elementPosition - offset;
+
+                        window.scrollTo({
+                          top: offsetPosition,
+                          behavior: 'smooth'
+                        });
+                      }
+                    }}
+                    className="px-4 py-3 rounded-xl text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white text-left transition-all"
+                  >
+                    {link.label}
+                  </button>
+                ) : (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      'px-4 py-3 rounded-xl text-sm font-bold transition-all',
+                      location.pathname === link.href
+                        ? 'bg-emerald-500/10 text-emerald-400'
+                        : 'text-white/70 hover:bg-white/5 hover:text-white'
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
               <div className="h-px bg-white/5 my-2" />
               <button
                 onClick={onLogout}
