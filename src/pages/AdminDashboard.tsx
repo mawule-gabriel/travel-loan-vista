@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Users, Wallet, Banknote, AlertTriangle, Plus } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { StatsCard } from '@/components/ui/StatsCard';
@@ -18,6 +18,7 @@ import { downloadPdfFromResponse } from '@/utils/downloadFile';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout, user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<LoanStatus | 'all'>('all');
@@ -89,6 +90,24 @@ export default function AdminDashboard() {
 
     return { totalBorrowers, activeLoans, totalDisbursed, overdueToday };
   }, [data]);
+
+  useEffect(() => {
+    if (location.pathname === '/admin/borrowers') {
+      const element = document.getElementById('borrowers-list');
+      if (element) {
+        const offset = 100; // Increased offset for better visibility
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = element.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [location.pathname]);
 
   if (error) {
     return (
@@ -165,12 +184,14 @@ export default function AdminDashboard() {
           />
         </div>
 
-        <SearchFilter
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          statusFilter={statusFilter}
-          onStatusChange={setStatusFilter}
-        />
+        <div id="borrowers-list" className="scroll-mt-24">
+          <SearchFilter
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+          />
+        </div>
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
