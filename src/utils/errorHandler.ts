@@ -30,7 +30,7 @@ export const getErrorMessage = (error: unknown): string => {
         }
 
         if (error.code === 'ERR_NETWORK' || !error.response) {
-            return 'Cannot connect to backend server. Please ensure the backend is running on http://localhost:8080';
+            return 'Cannot connect to backend server. Please ensure the backend API is reachable (check VITE_API_BASE_URL).';
         }
 
         return error.message || 'An unexpected error occurred.';
