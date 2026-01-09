@@ -9,12 +9,11 @@ import { normalizePhoneNumber } from '@/utils/formatters';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { cn } from '@/lib/utils';
 
-type UserType = 'admin' | 'borrower';
+
 
 export default function Login() {
   const navigate = useNavigate();
   const { login, isAuthenticated, isLoading: authLoading, user } = useAuth();
-  const [userType, setUserType] = useState<UserType>('borrower');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -108,33 +107,6 @@ export default function Login() {
             <p className="text-slate-400 mt-2 font-bold text-base">Sign in to your account</p>
           </div>
 
-          {/* Role Toggle */}
-          <div className="flex bg-slate-100/80 rounded-2xl p-1.5 mb-8 shadow-inner">
-            <button
-              type="button"
-              onClick={() => setUserType('borrower')}
-              className={cn(
-                'flex-1 py-3 rounded-xl text-sm font-black uppercase tracking-widest transition-all duration-500',
-                userType === 'borrower'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-[1.02]'
-                  : 'text-slate-400 hover:text-slate-600'
-              )}
-            >
-              Borrower
-            </button>
-            <button
-              type="button"
-              onClick={() => setUserType('admin')}
-              className={cn(
-                'flex-1 py-3 rounded-xl text-sm font-black uppercase tracking-widest transition-all duration-500',
-                userType === 'admin'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-[1.02]'
-                  : 'text-slate-400 hover:text-slate-600'
-              )}
-            >
-              Admin
-            </button>
-          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -192,7 +164,7 @@ export default function Login() {
               ) : (
                 <>
                   <span className="relative z-10 uppercase tracking-widest text-sm">
-                    Sign in as {userType}
+                    Sign in
                   </span>
                   <ChevronRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 via-white/5 to-indigo-600/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
