@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Phone, MapPin, User, Calendar, Wallet } from 'lucide-react';
+import { Phone, MapPin, User, Calendar, Wallet, ShieldCheck } from 'lucide-react';
 import type { BorrowerSummaryResponse } from '@/types/api';
 import { formatCurrency, formatDate, formatPhoneNumber } from '@/utils/formatters';
 import { useBorrowerDetails } from '@/hooks/queries/useAdmin';
@@ -97,6 +97,39 @@ export const BorrowerDetailDialog = ({
                                                 : 'Address not loaded'}
                                         </span>
                                     </div>
+                                </div>
+                            </div>
+                            <div className="space-y-3">
+                                <h4 className="font-semibold text-foreground flex items-center gap-2">
+                                    <ShieldCheck className="w-4 h-4" />
+                                    Guarantor Information
+                                </h4>
+                                <div className="space-y-2 text-sm bg-muted/30 p-4 rounded-lg">
+                                    {'guarantorName' in displayBorrower && displayBorrower.guarantorName ? (
+                                        <>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Full Name</span>
+                                                <span className="font-medium text-slate-900">{displayBorrower.guarantorName}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center py-1">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Phone Number</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <Phone className="w-3.5 h-3.5 text-muted-foreground" />
+                                                        <span className="font-medium text-slate-900">{formatPhoneNumber(displayBorrower.guarantorPhone)}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col gap-1 text-right">
+                                                    <span className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Relationship</span>
+                                                    <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs font-black uppercase tracking-widest border border-indigo-100 italic">
+                                                        {displayBorrower.guarantorRelationship || 'Not specified'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <p className="text-muted-foreground italic text-xs">No guarantor information provided</p>
+                                    )}
                                 </div>
                             </div>
 
