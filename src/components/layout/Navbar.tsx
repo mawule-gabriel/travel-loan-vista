@@ -89,9 +89,13 @@ export function Navbar({ userType, userName = 'User', onLogout }: NavbarProps) {
               <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
                 <User className="w-5 h-5 text-emerald-400" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-black uppercase tracking-widest text-white/50 leading-none mb-1">Admin</span>
-                <span className="text-sm font-bold leading-none">{userName}</span>
+              <div className="flex flex-col text-left">
+                {userType === 'admin' && (
+                  <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400/80 leading-none mb-1">
+                    Admin
+                  </span>
+                )}
+                <span className="text-sm font-bold leading-none text-white whitespace-nowrap">{userName}</span>
               </div>
             </div>
             <Button
