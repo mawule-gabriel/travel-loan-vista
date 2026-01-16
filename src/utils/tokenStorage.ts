@@ -1,6 +1,7 @@
 const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_INFO_KEY = 'user_info';
+const PASSWORD_RESET_REQUIRED_KEY = 'password_reset_required';
 
 interface StoredUserInfo {
     role: string;
@@ -34,10 +35,19 @@ export const tokenStorage = {
         localStorage.setItem(USER_INFO_KEY, JSON.stringify(userInfo));
     },
 
+    getPasswordResetRequired: (): boolean => {
+        return localStorage.getItem(PASSWORD_RESET_REQUIRED_KEY) === 'true';
+    },
+
+    setPasswordResetRequired: (required: boolean): void => {
+        localStorage.setItem(PASSWORD_RESET_REQUIRED_KEY, String(required));
+    },
+
     clearTokens: (): void => {
         localStorage.removeItem(ACCESS_TOKEN_KEY);
         localStorage.removeItem(REFRESH_TOKEN_KEY);
         localStorage.removeItem(USER_INFO_KEY);
+        localStorage.removeItem(PASSWORD_RESET_REQUIRED_KEY);
     },
 
     hasTokens: (): boolean => {

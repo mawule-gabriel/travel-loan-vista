@@ -171,6 +171,16 @@ export default function Login() {
                 </>
               )}
             </Button>
+
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
+              >
+                Forgot your password?
+              </button>
+            </div>
           </form>
 
           <footer className="mt-10 text-center">

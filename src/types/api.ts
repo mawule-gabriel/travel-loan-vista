@@ -11,6 +11,7 @@ export interface JwtResponse {
     role: string;
     name: string;
     expiresIn: number;
+    passwordResetRequired: boolean;
 }
 
 export interface RefreshTokenRequest {
@@ -21,6 +22,24 @@ export interface RefreshTokenResponse {
     accessToken: string;
     refreshToken: string;
     expiresIn: number;
+}
+
+export interface ForgotPasswordRequest {
+    phoneNumber: string;
+}
+
+export interface ResetPasswordRequest {
+    token: string;
+    newPassword: string;
+}
+
+export interface ChangePasswordRequest {
+    currentPassword: string;
+    newPassword: string;
+}
+
+export interface MessageResponse {
+    message: string;
 }
 
 export interface BorrowerSummaryResponse {

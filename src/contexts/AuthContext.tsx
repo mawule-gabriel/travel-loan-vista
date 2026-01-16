@@ -14,6 +14,7 @@ interface JwtPayload {
 interface AuthContextType extends AuthState {
     login: (credentials: LoginRequest) => Promise<void>;
     logout: () => Promise<void>;
+    clearPasswordResetRequired: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,6 +42,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         user: null,
         isAuthenticated: false,
         isLoading: true,
+        passwordResetRequired: false,
     });
 
     const getUserFromStorage = (): User | null => {
@@ -68,10 +70,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     useEffect(() => {
         const user = getUserFromStorage();
+        const storedPasswordResetRequired = tokenStorage.getPasswordResetRequired();
         setAuthState({
             user,
             isAuthenticated: !!user,
             isLoading: false,
+            passwordResetRequired: storedPasswordResetRequired,
         });
     }, []);
 
@@ -79,12 +83,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setAuthState((prev) => ({ ...prev, isLoading: true }));
         try {
             const response: JwtResponse = await authService.login(credentials);
-            
+
             tokenStorage.setUserInfo({
                 role: response.role,
                 fullName: response.name,
                 phoneNumber: credentials.phoneNumber,
             });
+            tokenStorage.setPasswordResetRequired(response.passwordResetRequired);
 
             const user: User = {
                 id: 0,
@@ -97,9 +102,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 user,
                 isAuthenticated: true,
                 isLoading: false,
+                passwordResetRequired: response.passwordResetRequired,
             });
 
-            if (user.role === 'ADMIN') {
+            if (response.passwordResetRequired) {
+                navigate('/change-password');
+            } else if (user.role === 'ADMIN') {
                 navigate('/admin');
             } else {
                 navigate('/borrower');
@@ -109,6 +117,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 user: null,
                 isAuthenticated: false,
                 isLoading: false,
+                passwordResetRequired: false,
             });
             throw error;
         }
@@ -116,16 +125,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const logout = async () => {
         await authService.logout();
+        tokenStorage.setPasswordResetRequired(false);
         setAuthState({
             user: null,
             isAuthenticated: false,
             isLoading: false,
+            passwordResetRequired: false,
         });
         navigate('/login');
     };
 
+    const clearPasswordResetRequired = () => {
+        tokenStorage.setPasswordResetRequired(false);
+        setAuthState((prev) => ({ ...prev, passwordResetRequired: false }));
+    };
+
     return (
-        <AuthContext.Provider value={{ ...authState, login, logout }}>
+        <AuthContext.Provider value={{ ...authState, login, logout, clearPasswordResetRequired }}>
             {children}
         </AuthContext.Provider>
     );

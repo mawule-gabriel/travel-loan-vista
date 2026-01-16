@@ -8,6 +8,9 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import ChangePassword from "./pages/ChangePassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import BorrowerDashboard from "./pages/BorrowerDashboard";
 import RegisterBorrower from "./pages/RegisterBorrower";
@@ -33,6 +36,16 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route
+                path="/change-password"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN', 'BORROWER']}>
+                    <ChangePassword />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/admin"
                 element={
@@ -75,4 +88,3 @@ const App = () => (
 );
 
 export default App;
-
