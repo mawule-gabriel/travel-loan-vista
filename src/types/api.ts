@@ -94,6 +94,7 @@ export interface BorrowerDetailResponse {
     ghanaCardNumber: string;
     homeAddressGhana: string;
     destinationAddress: string;
+    email?: string;
     profilePictureUrl: string | null;
     loanAmount: number;
     monthlyPayment: number;
@@ -108,6 +109,16 @@ export interface BorrowerDetailResponse {
     guarantorRelationship: string;
     payments: PaymentResponse[];
     status: LoanStatus;
+}
+
+export interface AdminResetPasswordResponse {
+    message: string;
+    temporaryPassword?: string;
+}
+
+export interface AdminResetPasswordRequest {
+    borrowerId: number;
+    newPassword?: string;
 }
 
 export interface PaymentResponse {

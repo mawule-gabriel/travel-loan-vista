@@ -5,6 +5,8 @@ import type {
     BorrowerSummaryResponse,
     PageResponse,
     BorrowerDetailResponse,
+    AdminResetPasswordRequest,
+    AdminResetPasswordResponse,
 } from '@/types/api';
 
 export const adminService = {
@@ -57,6 +59,14 @@ export const adminService = {
     getBorrowerDetails: async (id: number): Promise<BorrowerDetailResponse> => {
         const response = await apiClient.get<BorrowerDetailResponse>(
             API_ENDPOINTS.admin.getBorrowerDetails(id)
+        );
+        return response.data;
+    },
+
+    resetPassword: async (id: number, data: AdminResetPasswordRequest): Promise<AdminResetPasswordResponse> => {
+        const response = await apiClient.post<AdminResetPasswordResponse>(
+            API_ENDPOINTS.admin.resetPassword(id),
+            data
         );
         return response.data;
     },

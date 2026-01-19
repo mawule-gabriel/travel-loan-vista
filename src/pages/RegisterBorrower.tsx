@@ -27,6 +27,7 @@ export default function RegisterBorrower() {
     guarantorName: '',
     guarantorPhone: '',
     guarantorRelationship: '',
+    email: '',
   });
 
   const handleLogout = async () => {
@@ -79,6 +80,7 @@ export default function RegisterBorrower() {
     apiFormData.append('fullName', formData.fullName);
     apiFormData.append('ghanaCardNumber', formData.ghanaCardNumber);
     apiFormData.append('phoneNumber', normalizedPhone);
+    if (formData.email) apiFormData.append('email', formData.email);
     apiFormData.append('homeAddressGhana', formData.homeAddressGhana);
     apiFormData.append('destinationAddress', formData.destinationAddress);
     apiFormData.append('loanAmount', formData.loanAmount);
@@ -207,7 +209,7 @@ export default function RegisterBorrower() {
                   required
                 />
               </div>
-              <div className="md:col-span-2">
+              <div>
                 <label className={labelClasses}>Phone Number</label>
                 <input
                   type="tel"
@@ -217,6 +219,17 @@ export default function RegisterBorrower() {
                   placeholder="233 XX XXX XXXX or 0XX XXX XXXX"
                   className={inputClasses}
                   required
+                />
+              </div>
+              <div>
+                <label className={labelClasses}>Email Address <span className="text-slate-400 normal-case tracking-normal">(Optional)</span></label>
+                <input
+                  type="email"
+                  name="email"
+                  value={(formData as any).email}
+                  onChange={handleInputChange}
+                  placeholder="borrower@example.com"
+                  className={inputClasses}
                 />
               </div>
               <div className="md:col-span-2">

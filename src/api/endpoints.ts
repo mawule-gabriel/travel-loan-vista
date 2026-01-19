@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
         getBorrowers: '/admin/borrowers',
         getBorrowerDetails: (id: number) => `/admin/borrowers/${id}`,
         downloadSchedule: (id: number) => `/admin/borrowers/${id}/schedule`,
+        resetPassword: (id: number) => `/admin/borrowers/${id}/reset-password`,
     },
     borrower: {
         getDashboard: '/borrower/me',

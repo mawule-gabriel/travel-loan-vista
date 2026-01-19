@@ -68,6 +68,19 @@ export const useDownloadSchedule = (): UseMutationResult<Blob, Error, number> =>
     });
 };
 
+export const useResetBorrowerPassword = (): UseMutationResult<
+    import('@/types/api').AdminResetPasswordResponse,
+    Error,
+    { id: number; data: import('@/types/api').AdminResetPasswordRequest }
+> => {
+    return useMutation({
+        mutationFn: ({ id, data }) => adminService.resetPassword(id, data),
+        onError: (error) => {
+            console.error('Reset password error:', getErrorMessage(error));
+        },
+    });
+};
+
 export const useBorrowerDetails = (id: number | null): UseQueryResult<BorrowerDetailResponse, Error> => {
     return useQuery({
         queryKey: ['borrower-details', id],

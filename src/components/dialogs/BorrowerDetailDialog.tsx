@@ -1,11 +1,23 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Phone, MapPin, User, Calendar, Wallet, ShieldCheck } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Phone, MapPin, User, Calendar, Wallet, ShieldCheck, Mail, Key, Copy, AlertTriangle } from 'lucide-react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { BorrowerSummaryResponse } from '@/types/api';
 import { formatCurrency, formatDate, formatPhoneNumber } from '@/utils/formatters';
-import { useBorrowerDetails } from '@/hooks/queries/useAdmin';
+import { useBorrowerDetails, useResetBorrowerPassword } from '@/hooks/queries/useAdmin';
 import { PaymentTimeline } from '@/components/payment/PaymentTimeline';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
@@ -29,6 +41,29 @@ export const BorrowerDetailDialog = ({
 
     // Hook call must be unconditional
     const { data: detailBorrower, isLoading } = useBorrowerDetails(summaryBorrower?.id || null);
+    const resetPasswordMutation = useResetBorrowerPassword();
+    const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+    const [tempPassword, setTempPassword] = useState<string | null>(null);
+
+    const handleResetPassword = async () => {
+        if (!summaryBorrower?.id) return;
+        try {
+            const result = await resetPasswordMutation.mutateAsync({
+                id: summaryBorrower.id,
+                data: {} // No password provided, backend generates it
+            });
+            setTempPassword(result.temporaryPassword || "Password reset, check logs.");
+            setIsResetConfirmOpen(false);
+        } catch (e) {
+            // Error managed by hook
+        }
+    };
+
+    // Copy to clipboard helper
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        // Could show toast here but sticking to simple interactions
+    };
 
     // If we don't have a borrower to show (even summary), render nothing
     if (!summaryBorrower) return null;
@@ -72,6 +107,15 @@ export const BorrowerDetailDialog = ({
                                 </Badge>
                             </div>
                         </div>
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            className="bg-red-500 hover:bg-red-600 text-white gap-2"
+                            onClick={() => setIsResetConfirmOpen(true)}
+                        >
+                            <Key className="w-4 h-4" />
+                            Reset Password
+                        </Button>
                     </div>
 
                     <Separator />
@@ -95,6 +139,16 @@ export const BorrowerDetailDialog = ({
                                             {'homeAddressGhana' in displayBorrower
                                                 ? displayBorrower.homeAddressGhana
                                                 : 'Address not loaded'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Mail className="w-4 h-4 text-muted-foreground" />
+                                        <span>
+                                            {'email' in displayBorrower && displayBorrower.email ? (
+                                                <span className="text-foreground">{displayBorrower.email}</span>
+                                            ) : (
+                                                <span className="text-muted-foreground italic text-xs">No email provided</span>
+                                            )}
                                         </span>
                                     </div>
                                 </div>
@@ -205,6 +259,65 @@ export const BorrowerDetailDialog = ({
                     </div>
                 </div>
             </DialogContent>
+
+            {/* Confirmation Alert */}
+            <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+                            <AlertTriangle className="w-5 h-5" />
+                            Confirm Password Reset
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to reset the password for <b>{displayBorrower.fullName}</b>?
+                            <br /><br />
+                            Since this borrower may not have an email, the system will generate a <b>Temporary Password</b> which you must share with them manually.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={(e) => { e.preventDefault(); handleResetPassword(); }}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                            disabled={resetPasswordMutation.isPending}
+                        >
+                            {resetPasswordMutation.isPending ? 'Resetting...' : 'Yes, Reset Password'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Success Result Dialog */}
+            <Dialog open={!!tempPassword} onOpenChange={(open) => !open && setTempPassword(null)}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-emerald-600">
+                            <Key className="w-5 h-5" />
+                            Password Reset Successful
+                        </DialogTitle>
+                        <DialogDescription>
+                            Please copy the temporary password below and share it with the borrower. They will be asked to change it upon login.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="p-6 bg-slate-100 rounded-xl border border-slate-200 text-center">
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Temporary Password</p>
+                        <div className="flex items-center justify-center gap-3">
+                            <code className="text-2xl font-black text-slate-900 tracking-wider bg-white px-4 py-2 rounded-lg border border-slate-200">
+                                {tempPassword}
+                            </code>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => tempPassword && copyToClipboard(tempPassword)}
+                                className="h-12 w-12 rounded-lg"
+                                title="Copy to clipboard"
+                            >
+                                <Copy className="w-5 h-5" />
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </Dialog>
     );
 };
