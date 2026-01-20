@@ -128,12 +128,7 @@ export default function Login() {
             </div>
 
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-bold text-slate-700">Password</label>
-                <button type="button" className="text-xs font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-700 transition-colors">
-                  Forgot password?
-                </button>
-              </div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Password</label>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                 <input
