@@ -67,7 +67,7 @@ export default function Login() {
     }
   };
 
-  if (authLoading) {
+  if (authLoading && !isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F1F3F5]">
         <LoadingSpinner size="lg" />
@@ -75,9 +75,7 @@ export default function Login() {
     );
   }
 
-  if (isAuthenticated) {
-    return null;
-  }
+  // Removed early return for isAuthenticated to prevent blank screen before navigation
 
   const inputClasses = "w-full px-5 py-3.5 rounded-xl border border-slate-200 bg-[#F8F9FB] focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400";
   const labelClasses = "block text-sm font-bold text-slate-700 mb-2";
